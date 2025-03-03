@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  user_service:
+    build: .
+    container_name: user_subscription_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db
+    environment:
+      SPRING_APPLICATION_NAME: user-subscription-service
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGE-LOG: classpath:/db/changelog/db.changelog-master.xml
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/user_service
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE: postgresql
+      SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL-AUTO: validate
+      SPRING_JPA_SHOW-SQL: "true"
+    networks:
+      - app_network
+
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: user_service
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+networks:
+  app_network:
+
+volumes:
+  postgres_data:
